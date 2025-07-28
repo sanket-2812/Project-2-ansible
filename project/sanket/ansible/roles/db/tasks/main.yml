@@ -1,0 +1,30 @@
+
+    - name: Copy init.sql from controller to remote /tmp directory
+      ansible.builtin.copy:
+        src: /home/ubuntu/project/flask-app/db/init.sql
+        dest: /tmp/init.sql
+        mode: '0644'
+
+    - name: Move init.sql to /opt/init.sql on remote host
+      ansible.builtin.command:
+        cmd: mv /tmp/init.sql /opt
+      become: yes
+
+   
+
+    - name: Run PostgreSQL container using existing volume
+      community.docker.docker_container:
+        name: flaskdb
+        image: postgres:13
+        state: started
+        restart_policy: always
+        env:
+          POSTGRES_DB: flaskdb
+          POSTGRES_USER: flaskuser
+          POSTGRES_PASSWORD: flaskpass
+        volumes:
+          - /opt/init.sql:/docker-entrypoint-initdb.d/init.sql:ro  # this won't re-run if DB already initialized
+          - 5a8cdaa0463da43f5f0e716fd9728d2f57fcebdbdb759c2b263ba1fcfd3c12fe:/var/lib/postgresql/data
+        ports:
+          - "5432:5432"
+      become: true

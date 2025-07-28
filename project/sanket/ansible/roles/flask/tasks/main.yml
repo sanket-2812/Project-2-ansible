@@ -1,0 +1,33 @@
+- name: Copy Flask app
+  copy:
+    src: /home/ubuntu/project/flask-app/
+    dest: /opt/flask_app/
+  become: yes
+
+
+- name: copy first dockerfile to remote node
+  ansible.builtin.copy:
+    src: /home/ubuntu/project/flask-app/
+    dest: /opt/flask_app/
+    mode: '0755'
+  become: yes
+  delegate_to: localhost
+ 
+- name: Build Flask Docker image
+  community.docker.docker_image:
+    name: flaskapp
+    source: build
+    build:
+      path: /opt/flask_app/
+  become: yes
+
+- name: Run Flask container
+  community.docker.docker_container:
+    name: flaskweb
+    image: flaskapp
+    state: started
+    restart_policy: always
+    ports:
+      - "5000:5000"
+    env_file: /opt/flask_app/.env
+  become: yes

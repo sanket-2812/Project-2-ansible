@@ -1,0 +1,16 @@
+- name: Install Docker and pip
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - python3-docker
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Enable and start Docker
+  ansible.builtin.service:
+    name: docker
+    enabled: yes
+    state: started
+  become: yes
+

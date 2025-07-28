@@ -1,0 +1,14 @@
+- name: Set up Docker
+  hosts: all
+  roles:
+    - docker
+
+- name: Deploy PostgreSQL
+  hosts: db_server
+  roles:
+    - db
+
+- name: Deploy Flask
+  hosts: web_servers
+  roles:
+    - flask
